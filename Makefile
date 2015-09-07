@@ -1,27 +1,29 @@
 TARGET = psp2shell
 OBJS   = main.o draw.o font_data.o
 
-LIBS = -lc_stub -lSceKernel_stub -lSceDisplay_stub -lSceGxm_stub -lSceCtrl_stub -lSceAppMgr_stub
+LIBS = -lSceDisplay_stub -lSceGxm_stub -lSceCtrl_stub
 
-PREFIX  = arm-none-eabi
-CC      = $(PREFIX)-gcc
+PREFIX = arm-vita-eabi
+CC = $(PREFIX)-gcc
 READELF = $(PREFIX)-readelf
 OBJDUMP = $(PREFIX)-objdump
-CFLAGS  = -Wall -specs=psp2.specs
+CFLAGS = -Wall -O2 -mcpu=cortex-a9 -mthumb
 ASFLAGS = $(CFLAGS)
 
-all: clean $(TARGET).elf
+all: clean $(TARGET)
 
-%.elf: %_n.elf
-	psp2-fixup -q -S $< $@
+.PHONY: $(TARGET)
+$(TARGET): out/$(TARGET).elf
+	$(PREFIX)-strip -g $<
+	vita-elf-create out/$(TARGET).elf out/$(TARGET).velf db.json extra.json
 
+out/$(TARGET).elf: $(OBJS)
+	mkdir -p out
+	$(CC) -Wl,-q $(OBJS) $(LIBS) -o $@
 
-$(TARGET)_n.elf: $(OBJS) libVHL/libvhl_stub.a
-	$(CC) $(CFLAGS) $^ $(LIBS) -o $@
-
-libVHL/libvhl_stub.a:
-	$(MAKE) -C $(dir $@) $(notdir $@)
+bin/%.o: src/%.c
+	mkdir -p bin
+	$(CC) $(CFLAGS) -c $< -o $@
 
 clean:
-	@rm -rf $(TARGET)_n.elf $(TARGET).elf $(OBJS)
-	@$(MAKE) -C libVHL clean
+	@rm -rf out/$(TARGET).elf out/$(TARGET).velf $(OBJS)
