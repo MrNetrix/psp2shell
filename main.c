@@ -17,6 +17,7 @@
 #include <psp2/uvl.h>
 
 #include "draw.h"
+#include "ftp.h"
 
 PSP2_MODULE_INFO(0, 0, "psp2shell");
 
@@ -126,6 +127,13 @@ int main()
 
 	// Initialize Screen Output
 	if (init_video() < 0)return -1;
+
+    char vita_ip[16];
+    unsigned short int vita_port;
+
+    ftp_init(vita_ip, &vita_port);
+
+    printf("Listening for FTP connection at: %s:%d\n", vita_ip, vita_port);
 
 	// Update List
 	updateList(CLEAR);
@@ -270,6 +278,8 @@ int main()
 		// Delay Thread (~100FPS are enough)
 		sceKernelDelayThread(10000);
 	}
+
+    ftp_fini();
 
 	end_video();
 

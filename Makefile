@@ -1,7 +1,7 @@
 TARGET = psp2shell
-OBJS   = main.o draw.o font_data.o
+OBJS   = main.o draw.o font_data.o ftp.o
 
-LIBS = -lSceDisplay_stub -lSceGxm_stub -lSceCtrl_stub
+LIBS = -lSceDisplay_stub -lSceGxm_stub -lSceCtrl_stub -lSceNet_stub -lSceNetCtl_stub
 
 PREFIX = arm-vita-eabi
 CC = $(PREFIX)-gcc
@@ -15,7 +15,7 @@ all: clean $(TARGET)
 .PHONY: $(TARGET)
 $(TARGET): out/$(TARGET).elf
 	$(PREFIX)-strip -g $<
-	vita-elf-create out/$(TARGET).elf out/$(TARGET).velf db.json extra.json
+	vita-elf-create out/$(TARGET).elf out/$(TARGET).velf
 
 out/$(TARGET).elf: $(OBJS)
 	mkdir -p out
